@@ -1,0 +1,52 @@
+create database SSPharma;
+
+CREATE TABLE stock (
+    pid INT NOT NULL PRIMARY KEY,
+    product VARCHAR(255) NULL,
+    batch_no VARCHAR(50) NULL,
+    expiry_date DATE NULL,
+    mrp DECIMAL(10,2) NULL,
+    pkg INT NULL,
+    qty INT NULL
+);
+
+CREATE TABLE payments (
+    PmId VARCHAR(255) PRIMARY KEY,
+    Supplier VARCHAR(255),
+    Date DATE,
+    Amount DECIMAL(10, 2)
+);
+
+CREATE TABLE remaining (
+    RmId VARCHAR(255) PRIMARY KEY,
+    CustomerName VARCHAR(255),
+    ContactNo VARCHAR(15),
+    Date DATE,
+    Amount NUMERIC(10, 2)
+);
+
+CREATE TABLE orders (
+    order_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    customer_name VARCHAR(255) NOT NULL,
+    contact_no VARCHAR(20) NOT NULL,
+    address VARCHAR(255) NOT NULL,
+    product VARCHAR(255) NOT NULL,
+    quantity INT NOT NULL,
+    order_date DATE NOT NULL
+);
+
+CREATE TABLE BillDetails (
+    BillNo INT,
+    Date DATE,
+    PatientName VARCHAR(255),
+    DoctorName VARCHAR(255),
+    Product VARCHAR(255),
+    MRP DECIMAL(10, 2),
+    Expiry DATE,
+    Package VARCHAR(50),
+    Qty INT,
+    Cost DECIMAL(10, 2),
+    Discount DECIMAL(5, 2),
+    Total DECIMAL(10, 2)
+);
+

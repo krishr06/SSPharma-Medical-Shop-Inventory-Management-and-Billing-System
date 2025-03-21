@@ -1,0 +1,162 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./output.css" rel="stylesheet">
+  <title>Payments</title>
+</head>
+<body class="m-0 p-0 bg-emerald-100 font-sans">
+  <nav class="w-full flex justify-between font-semibold shadow-lg bg-emerald-200 text-teal-700">
+    <img src="./img/Tlogo.png" alt="SSLogo" class="m-3" style="width: 6%;">
+    <div class="self-center mr-3">
+        <a href="/" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Home</a>
+        <a href="/sale" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Sale</a>
+        <a href="/stock" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Stock</a>
+        <!-- <a href="/order" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Order</a> -->
+        <a href="/payments" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Payments</a>
+        <a href="/remaining" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Remaining</a>
+    </div>
+</nav>
+<div class="flex">
+  <div class="w-7/12 p-8 text-center">
+      <h2 class="text-2xl font-semibold mb-4">PAYMENTS</h2>
+      <table class="w-full border border-collapse">
+          <thead>
+              <tr>
+                  <th class="border p-2">Sr.No.</th>
+                  <th class="border p-2">Payment Id</th>
+                  <th class="border p-2">Supplier</th>
+                  <th class="border p-2">Date</th>
+                  <th class="border p-2">Amount</th>
+              </tr>
+          </thead>
+          <tbody>
+            <% for (let i = 0; i < payments.length; i++) { %>
+                <tr>
+                    <td class="border p-2"><%= i + 1 %></td>
+                    <td class="border p-2"><%= payments[i].PmId %></td>
+                    <td class="border p-2"><%= payments[i].Supplier %></td>
+                    <td class="border p-2"><%= new Date(payments[i].Date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' });   %></td>
+                    <td class="border p-2"><%= payments[i].Amount %></td>
+                </tr>
+            <% } %>
+        </tbody>
+      </table>
+  </div>
+
+  <div class="w-5/12 p-8">
+    <div class="flex justify-evenly">
+        <div class="mb-4">
+            <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="add">Add Payment</button>
+        </div>
+        <div class="mb-4">
+            <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="update">Update Payment</button>
+        </div>
+        <div>
+            <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="delete">Delete Payment  </button>
+        </div>
+    </div>
+            
+    <div class="h-3/4 w-full m-2" id="dbForms">
+      <div id="addForm" style="display: none;" class="border border-double border-teal-950 p-4">
+        <form action="/payments/addPayment" method="post">
+            <h1 class="font-bold text-2xl text-center m-4">Add Payment</h1>
+            <label for="paymentId" class="font-semibold">Payment Id</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="paymentId" name="paymentId" required><br>
+            <label for="Supplier" class="font-semibold">Supplier</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="Supplier" name="supplier" required><br>
+            <label for="date" class="font-semibold">Date</label><br>
+            <input type="date" class="m-2 w-full p-2 rounded-sm" id="date" name="date" required><br>
+            <label for="amount" class="font-semibold">Amount</label><br>
+            <input type="number" class="m-2 w-full p-2 rounded-sm" id="amount" name="amount" required><br>
+    
+            <div class="flex h-full w-full justify-center gap-10 mt-6">
+                <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Add Payment">
+                <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+            </div>
+        </form>
+    </div>
+
+    <div id="updateForm" style="display: none;" class="border border-double border-teal-950 p-4">
+      <form action="/payments/updatePayment" method="post">
+            <h1 class="font-bold text-2xl text-center m-4">Update Payment</h1>
+            <label for="paymentId" class="font-semibold">Payment Id</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="paymentId" name="paymentId" required><br>
+            <label for="newPaymentId" class="font-semibold">New Payment Id</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="newPaymentId" name="newPaymentId" required><br>
+            <label for="Supplier" class="font-semibold">Supplier</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="Supplier" name="supplier" required><br>
+            <label for="date" class="font-semibold">Date</label><br>
+            <input type="date" class="m-2 w-full p-2 rounded-sm" id="date" name="date" required><br>
+            <label for="amount" class="font-semibold">Amount</label><br>
+            <input type="number" class="m-2 w-full p-2 rounded-sm" id="amount" name="amount" required><br>
+    
+        <div class="flex h-full w-full justify-center gap-10 mt-6">
+            <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Update Payment">
+            <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+        </div>
+    </form>
+    </div>
+
+    <div id="deleteForm" style="display: none;" class="border border-double border-teal-950 p-4">
+      <form action="/payments/deletePayment" method="post">
+          <h1 class="font-bold text-2xl text-center m-4">Delete Payment</h1>
+          <label for="paymentId" class="font-semibold">Payment Id</label><br>
+          <input type="text" class="m-2 w-full p-2 rounded-sm" id="paymentId" name="paymentId" required><br>
+  
+          <div class="flex h-full w-full justify-center gap-10 mt-6">
+              <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Delete Payment">
+              <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+          </div>
+      </form>
+  </div>
+        
+</div>
+</div>
+
+</div>
+<script>
+var formContainer = document.getElementById('dbForms');
+var addForm = document.getElementById('addForm');
+var updateForm = document.getElementById('updateForm');
+var deleteForm = document.getElementById('deleteForm');
+function showForm(btn){
+    switch(btn.id){
+        case "add":
+            updateForm.style.display = "none";
+            deleteForm.style.display = "none";
+            addForm.style.display = "block";
+            break;
+            
+        case "update":
+            addForm.style.display = "none";
+            deleteForm.style.display = "none";
+            updateForm.style.display = "block";
+            break;
+
+        case "delete":
+            updateForm.style.display = "none";
+            addForm.style.display = "none";
+            deleteForm.style.display = "block";
+            break;
+    }
+}
+
+function closeForm(){
+    updateForm.style.display = "none";
+    addForm.style.display = "none";
+    deleteForm.style.display = "none";
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+    const success = urlParams.get('success');
+    if (success === 'true') {
+        alert('Payment added successfully!');
+    } else if (success === 'false') {
+        alert('Failed to add payment. Please try again.');
+    }
+</script>
+
+</body>
+</html>

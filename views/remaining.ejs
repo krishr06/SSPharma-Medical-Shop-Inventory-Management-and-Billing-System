@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./output.css" rel="stylesheet">
+  <title>Remaining</title>
+  <style>
+    body{
+      overflow-x: hidden;
+    }
+    #toast{
+        display: none;
+        position: absolute;
+        bottom: 10px;
+        right: 10px;
+        height: 50px;
+        width: 250px;
+        background-color: whitesmoke;
+        text-align: center;
+        border-radius: 5px;
+        box-shadow: 4px 4px 5px #56c9a1;
+    }
+    .slideIn {
+        animation: slideInRight 0.5s forwards;
+    }
+    .slideOut {
+        animation: slideOutLeft 0.5s forwards;
+    }
+    @keyframes slideInRight {
+        from { right: -250px; opacity: 0; }
+        to { right: 10px; opacity: 1; }
+    }
+    @keyframes slideOutLeft {
+        from { right: 10px; opacity: 1; }
+        to { right: -250px; opacity: 0; }
+    }
+</style>
+</head>
+<body class="m-0 p-0 bg-emerald-100 font-sans">
+  <nav class="w-full flex justify-between font-semibold shadow-lg bg-emerald-200 text-teal-700">
+    <img src="./img/Tlogo.png" alt="SSLogo" class="m-3" style="width: 6%;">
+    <div class="self-center mr-3">
+      <a href="/" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Home</a>
+      <a href="/sale" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Sale</a>
+      <a href="/stock" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Stock</a>
+      <!-- <a href="/order" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Order</a> -->
+      <a href="/payments" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Payments</a>
+      <a href="/remaining" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Remaining</a>
+    </div>
+  </nav>
+
+  <div class="flex">
+    <div class="w-7/12 p-8 text-center">
+      <h2 class="text-2xl font-semibold mb-4">REMAINING</h2>
+      <table class="w-full border border-collapse">
+        <thead>
+          <tr>
+            <th class="border p-2">Sr.No.</th>
+            <th class="border p-2">Remaining Id</th>
+            <th class="border p-2">Customer Name</th>
+            <th class="border p-2">Contact No</th> 
+            <th class="border p-2">Date</th>
+            <th class="border p-2">Amount</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% for (let i = 0; i < remaining.length; i++) { %>
+            <tr>
+                <td class="border p-2"><%= i + 1 %></td>
+                <td class="border p-2"><%= remaining[i].RmId %></td>
+                <td class="border p-2"><%= remaining[i].CustomerName %></td>
+                <td class="border p-2"><%= remaining[i].ContactNo %></td>
+                <td class="border p-2"><%= new Date(remaining[i].Date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }); %></td>
+                <td class="border p-2"><%= remaining[i].Amount %></td>
+            </tr>
+        <% } %>
+        </tbody>
+      </table>
+    </div>
+    <div class="w-5/12 p-8">
+      <div class="flex justify-evenly">
+          <div class="mb-4">
+              <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="add">Add Remaining</button>
+          </div>
+          <div>
+              <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="delete">Delete Remaining</button>
+          </div>
+      </div>
+      <div class="h-3/4 w-full m-2" id="dbForms">
+        <div id="addForm" style="display: none;" class="border border-double border-teal-950 p-4">
+          <form action="/remaining/addRemaining" method="post">
+            <h1 class="font-bold text-2xl text-center m-4">Add Remaining</h1>
+            <label for="remainingId" class="font-semibold">remaining Id</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="remainingId" name="remainingId" required><br>
+            <label for="customerName" class="font-semibold">Customer Name</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="customerName" name="customerName" required><br>
+            <label for="ContactNo" class="font-semibold">Contact No</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="ContactNo" name="contactNo" required><br>
+            <label for="date" class="font-semibold">Date</label><br>
+            <input type="date" class="m-2 w-full p-2 rounded-sm" id="date" name="date" required><br>
+            <label for="amount" class="font-semibold">Amount</label><br>
+            <input type="number" class="m-2 w-full p-2 rounded-sm" id="amount" name="amount" required><br>
+        
+            <div class="flex h-full w-full justify-center gap-10 mt-6">
+                <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Add Remaining">
+                <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+            </div>
+        </form>
+      </div>
+  
+      <div id="deleteForm" style="display: none;" class="border border-double border-teal-950 p-4">
+        <form action="/remaining/deleteRemaining" method="post">
+            <h1 class="font-bold text-2xl text-center m-4">Delete remaining</h1>
+            <label for="remainingId" class="font-semibold">Remaining Id</label><br>
+            <input type="text" class="m-2 w-full p-2 rounded-sm" id="remainingId" name="remainingId" required><br>
+    
+            <div class="flex h-full w-full justify-center gap-10 mt-6">
+                <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Delete remaining">
+                <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+            </div>
+        </form>
+    </div>
+          
+  </div>
+  </div>
+  
+  </div>
+<div id="toast"></div>
+  <script>
+  var formContainer = document.getElementById('dbForms');
+  var addForm = document.getElementById('addForm');
+  var deleteForm = document.getElementById('deleteForm');
+  function showForm(btn){
+      switch(btn.id){
+          case "add":
+              deleteForm.style.display = "none";
+              addForm.style.display = "block";
+              break;
+          case "delete":
+              addForm.style.display = "none";
+              deleteForm.style.display = "block";
+              break;
+      }
+  }
+  
+  function closeForm(){
+      addForm.style.display = "none";
+      deleteForm.style.display = "none";
+  }
+  function showToast(message){
+        var toast = document.getElementById("toast");
+        toast.innerHTML = message;
+        toast.style.display = "block";
+        toast.classList.add("slideIn");
+        setTimeout(function(){
+            toast.classList.remove("slideIn");
+            toast.classList.add("slideOut");
+            setTimeout(function(){
+                toast.style.display = "none";
+                toast.classList.remove("slideOut");
+            }, 1000);
+        }, 3000);
+    }
+</script>
+</body>
+</html>

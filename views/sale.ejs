@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sale</title>
+    <link href="./output.css" rel="stylesheet">
+    <style>
+         #billTable {
+        border-collapse: collapse;
+       
+    }
+
+    #billTable th,
+    #billTable td {
+        border: 1px solid black;
+    }
+    </style>
+    <script>
+        var products = JSON.parse('<%- JSON.stringify(products) %>');
+        var bno = JSON.parse('<%- JSON.stringify(bno) %>');
+        var grandTotal = 0;
+        function bodyLoad() {
+            //console.log(products);
+            document.getElementById("todaysDate").innerHTML =
+                new Date().getDate() +
+                "-" +
+                new Date().getMonth() +
+                "-" +
+                new Date().getFullYear();
+            document.getElementById("billNo").innerHTML = bno;
+        }
+
+        function updateProductDetails(event) {
+            var selectedProduct = event.target.value;
+            var parentRow = event.target.closest('tr');
+
+            // Find the selected product in the products array
+            var selectedProductDetails = products.find(function (product) {
+                return product.product === selectedProduct;
+            });
+
+            // Update Mrp, Pkg, and Qty fields in the current row
+            if (selectedProductDetails) {
+                parentRow.querySelector('.mrp').value = selectedProductDetails.mrp;
+                parentRow.querySelector('.pkg').value = selectedProductDetails.pkg;
+                // parentRow.querySelector('.qty').value = selectedProductDetails.qty;
+            }
+        }
+        function updateTotal() {
+            var salesTableBody = document.getElementById("salesTableBody");
+            var billTableBody = document.getElementById("billTable").getElementsByTagName('tbody')[0];
+
+            // Clear bill table
+            billTableBody.innerHTML = '';
+
+            var total = 0; // Initialize total amount
+
+            for (var i = 0; i < salesTableBody.rows.length; i++) {
+                var checkbox = salesTableBody.rows[i].querySelector('input[type="checkbox"]');
+                if (checkbox.checked) {
+                    var salesRow = salesTableBody.rows[i];
+                    var newRow = billTableBody.insertRow();
+
+                    // Get values from the sales table row
+                    var product = salesRow.querySelector('.productInput').value;
+                    var mrp = salesRow.querySelector('.mrp').value;
+                    var pkg = salesRow.querySelector('.pkg').value;
+                    var exp = "";
+                    var sale = salesRow.querySelector('.sale').value;
+                    var cost = salesRow.querySelector('.cost').value;
+
+                    // Create new cells in the bill table and insert input fields with copied values
+                    var productCell = newRow.insertCell(0);
+                    var mrpCell = newRow.insertCell(1);
+                    var expCell = newRow.insertCell(2);
+                    var pkgCell = newRow.insertCell(3);
+                    var saleCell = newRow.insertCell(4);
+                    var costCell = newRow.insertCell(5);
+
+                    productCell.innerHTML = '<input type="text" name="product[]" class="w-24 text-center" value="' + product + '">';
+                    mrpCell.innerHTML = '<input type="text" name="mrp[]" class="w-24 text-center" value="' + mrp + '">';
+                    pkgCell.innerHTML = '<input type="text" name="pkg[]" class="w-24 text-center" value="' + pkg + '">';
+                    expCell.innerHTML = '<input type="text" name="exp[]" class="w-24 text-center" value="' + exp + '">';
+                    saleCell.innerHTML = '<input type="text" name="sale[]" class="w-24 text-center" value="' + sale + '">';
+                    costCell.innerHTML = '<input type="text" name="cost[]" class="w-24 text-center" value="' + cost + '">';
+
+                    // Update total amount
+                    total += parseFloat(cost) || 0;
+                }
+            }
+            for (var i = 0; i < billTableBody.rows.length; i++) {
+                var costInput = billTableBody.rows[i].querySelector('.cost');
+                if (costInput) {
+                    total += parseFloat(costInput.value) || 0;
+                }
+             }
+            // Update the total amount in the HTML
+            grandTotal = total;
+            document.getElementById("totalAmount").innerHTML = total.toFixed(2);
+        }
+
+        function checkEnterKey(event) {
+            if (event.key === 'Enter') {
+                updateFieldsOnKey(event.target);
+            }
+        }
+        function updateFieldsOnKey(productInput) {
+            // Get the selected product
+            var selectedProduct = productInput.value;
+
+            // Find the corresponding product in the array
+            var selectedProductData = products.find(function (product) {
+                return product.product === selectedProduct;
+            });
+
+            // Update Mrp, Pkg, and Qty fields
+            var mrpInput = productInput.parentNode.parentNode.querySelector('.mrp');
+            var pkgInput = productInput.parentNode.parentNode.querySelector('.pkg');
+            // var qtyInput = productInput.parentNode.parentNode.querySelector('.qty');
+            var saleInput = productInput.parentNode.parentNode.querySelector('.sale');
+            var costInput = productInput.parentNode.parentNode.querySelector('.cost');
+
+            if (selectedProductData) {
+                mrpInput.value = selectedProductData.mrp;
+                pkgInput.value = selectedProductData.pkg;
+                // qtyInput.value = selectedProductData.qty;
+
+                // Calculate cost using the provided formula and update on sale input
+                saleInput.addEventListener('input', function () {
+                    var cost = (parseFloat(selectedProductData.mrp) / parseInt(selectedProductData.pkg)) * parseFloat(saleInput.value);
+                    costInput.value = isNaN(cost) ? '' : cost.toFixed(2);
+                });
+            } else {
+                mrpInput.value = '';
+                pkgInput.value = '';
+                // qtyInput.value = '';
+                saleInput.value = '';
+                costInput.value = '';
+            }
+        }
+
+        // Handle Ctrl+B form submission
+        document.addEventListener('keydown', function (event) {
+            if (event.ctrlKey && event.key === 's') {
+                event.preventDefault();
+                document.getElementById('myForm').submit();
+            }
+        });
+        function printBill() {
+            var billTableBody = document.getElementById("billTable").getElementsByTagName('tbody')[0];
+            var count = billTableBody.rows.length;
+        
+            // for(let i=0;i<10-count;i++){
+            //     var newRow = billTableBody.insertRow();
+            //     var newCell = newRow.insertCell();
+            //     newCell.innerHTML = "&nbsp;";
+            // }
+            var pname = document.getElementById("pname").value;
+            var dname = document.getElementById("dname").value;
+            var disVal = document.getElementById("discountField").value;
+
+            // Clear existing content before updating
+            document.getElementById("patientName").innerHTML = "";
+            document.getElementById("doctorName").innerHTML = "";
+            document.getElementById("discountSpan").innerHTML = "";
+
+            // Update patient name and doctor name in the bill content
+            document.getElementById("patientName").innerText = pname;
+            document.getElementById("doctorName").innerText = dname;
+            document.getElementById("discountSpan").innerText = disVal;
+            
+            document.getElementById('pname').style.display = 'none';
+            document.getElementById('dname').style.display = 'none';
+            document.getElementById('discountField').style.display = 'none';
+
+            var billContent = document.getElementById("bill").innerHTML;
+            
+            // Create a style element for scaling
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            style.media = 'print';
+            style.innerHTML = `
+            @media print {
+                body {
+                    margin : 0px;
+                    padding : 0px;
+                    transform: scale(0.6);
+                    transform-origin: left top; /* Adjust as needed */
+                    width: 170%; /* Counteract the scale */
+                    overflow: visible;
+                    margin: 20px;
+                }
+            }
+        `;
+
+            document.head.appendChild(style);
+
+            var originalBodyContent = document.body.innerHTML;
+            document.body.style.backgroundColor = "white";
+            document.body.innerHTML = billContent;
+
+            window.print();
+
+            document.body.style.backgroundColor = "#D1FAE5";
+            document.body.innerHTML = originalBodyContent;
+            document.getElementById('patientName').innerHTML = '';
+            document.getElementById('doctorName').innerHTML = '';
+            document.getElementById('discountSpan').innerHTML = '';
+            document.getElementById('pname').style.display = '';
+            document.getElementById('dname').style.display = '';
+            document.getElementById('discountField').style.display = '';
+            document.getElementById('discountField').value = disVal;
+            document.getElementById('pname').value = pname;
+            document.getElementById('dname').value = dname;
+            document.head.removeChild(style);
+        }
+        function updateDiscount(){
+            let dis = document.getElementById("discountField").value;
+            let updatedTotal =  grandTotal - (grandTotal / 100 ) * dis;
+            document.getElementById("totalAmount").innerHTML = updatedTotal.toFixed(2);
+        }
+        function printAndSaveBill() {
+        // First, execute the printBill function
+        printBill();
+
+        // Then, submit the form to the Express route
+        document.billForm.action = "/sale/saveBill";
+        document.billForm.submit();
+        
+        return true; // Returning true to allow the form submission to proceed
+    }
+    
+    </script>
+</head>
+
+<body class="m-0 p-0 bg-emerald-100 font-sans" onload="bodyLoad()">
+    <nav class="w-full flex justify-between font-semibold shadow-lg bg-emerald-200 text-teal-700">
+        <img src="./img/Tlogo.png" alt="SSLogo" class="m-3" style="width: 6%;">
+        <div class="self-center mr-3">
+            <a href="/" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Home</a>
+            <a href="/sale" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Sale</a>
+            <a href="/stock" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Stock</a>
+            <!-- <a href="/order" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Order</a> -->
+            <a href="/payments" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Payments</a>
+            <a href="/remaining" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Remaining</a>
+        </div>
+    </nav>
+
+    <div class="w-full h-full flex">
+        <div class="h-full w-3/5 m-10">
+            <form action="/sale/saveBill" onsubmit="return printAndSaveBill()" name="billForm" method="post">
+            <div>
+                <div id="bill" class="h-full w-full bg-white">
+                    <div class="w-full h-1/6">
+                        <div style="height: 50px; width: 100%; background-color: aquamarine;"></div>
+                    </div>
+                    <div class="w-full h-4/6">
+                        <div class="w-full h-full flex felx-col">
+                            <img src="./img/qr.png" style="width: 8%; height: 8%; margin: 1%;">
+                            <div class="w-1/5 h-full flex">
+                                <div style="margin-top: 10%;">
+                                    <p class="font-bold">SS Pharma</p>
+                                    <p class="font-bold">Shop number 13,</p>
+                                    <p class="font-bold">Skyi star shopping complex, Bhukum</p>
+                                    <p class="font-bold">DL: No. MH-PZ4-494602</p>
+                                    <p class="font-bold">DL: No. MH-PZ4-494603</p>
+                                </div>
+                            </div>
+                            <img src="./img/Tlogo.png"
+                                style="width: 15%; height: 10%; margin-left: 15%; margin-right: 15%;">
+                            <div class="w-1/5 h-full" style=" margin-top:1%;">
+                                <p class="font-bold">Bill No: <span id="billNo"></span></p>
+                                <p class="font-bold">Date: <span id="todaysDate"></span></p>
+                            </div>
+                        </div>
+        
+                        <div class="w-full flex justify-evenly" style="margin-top: 1%;">
+                            <div class="w-1/2">
+                                <p class="font-semibold ml-2">PATIENT NAME <span id="patientName"></span> <input class="border border-solid" id="pname" name="pname" size="35"
+                                        type="text"></p>
+                            </div>
+                            <div class="w-1/2">
+                                <p class="font-semibold">DOCTORS NAME <span id="doctorName"></span><input class="border border-solid" id="dname" name="dname" size="35"
+                                        type="text"></p>
+                            </div>
+                        </div>
+
+                        <div class="w-full h-full flex justify-center align-middle self-center">
+                            <table id="billTable" style="margin: 2%;">
+                                <thead>
+                                    <th class="border border-solid">Product</th>
+                                    <th class="border border-solid">MRP</th>
+                                    <th class="border border-solid">Expiry</th>
+                                    <th class="border border-solid">Packaging</th>
+                                    <th class="border border-solid">Qty</th>
+                                    <th class="border border-solid">Cost</th>
+                                </thead>
+                                <tbody class="border border-solid" id="billTableBody">
+                                    <% for (let i=0; i < 10; i++) { %>
+                                        <tr>
+                                            <td><input type="text" class="border"></td>
+                                            <td><input type="text" class="border w-24"></td>
+                                            <td><input type="text" class="border w-24"></td>
+                                            <td><input type="text" class="border w-24"></td>
+                                            <td><input type="text" class="border w-24"></td>
+                                            <td><input type="text" class="border w-24"></td>
+                                        </tr>
+                                        <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="w-full h-full flex flex-col">
+                        <div>
+                            <div>
+                                <p class="font-bold" style="margin-left: 75%; margin-top: 2%; margin-bottom: 2%;">
+                                    Discount : <span id="discountSpan"></span><input type="number" id="discountField" name="discount" onchange="updateDiscount()" class="w-16 border">%</p>
+                            </div>
+                            <p class="font-bold" style="margin-left: 75%; margin-top: 2%; margin-bottom: 2%;">Total :
+                                <span id="totalAmount">0.00</span></p>
+                        </div>
+                    </div>
+                    <div class="w-full h-1/6">
+                        <div style="height: 40px; width: 100%; background-color: aquamarine;"></div>
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600 my-2">
+                Save Bill
+              </button>  
+        </form>
+        </div>
+        <div class="h-full w-2/5 m-10">
+            <table>
+                <thead>
+                    <th>Select</th>
+                    <th>Product</th>
+                    <th>MRP</th>
+                    <th>PKG</th>
+                    <!-- <th>QTY</th> -->
+                    <th>Sale</th>
+                    <th>Cost</th>
+                </thead>
+                <form id="myForm" target="_blank"
+                    action="https://script.google.com/macros/s/AKfycbzMdunzRDlQvtKI9lkdPCZgkytl8ABFl3uCVWl4BxnE-xQ52pl6jgdG3co7gSq00l6M/exec"
+                    method="post">
+                    <tbody id="salesTableBody">
+
+                        <% for (let i=0; i < 20; i++) { %>
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="addItem" class="addItem mb-1 ms-1 mt-1"
+                                        onclick="updateTotal()">
+                                </td>
+                                <td>
+                                    <input type="text" name="product_<%= i %>" class="productInput mb-1 ms-1 mt-1"
+                                        list="productsList" onkeydown="checkEnterKey(event)">
+                                    <datalist id="productsList">
+                                        <% products.forEach(function(entry) { %>
+                                            <option value="<%= entry.product %>">
+                                                <% }); %>
+                                    </datalist>
+                                </td>
+                                <td>
+                                    <input type="number" name="mrp_<%= i %>" class="w-24 mrp mb-1 ms-1 mt-1">
+                                </td>
+                                <td>
+                                    <input type="number" name="pkg_<%= i %>" class="w-24 pkg mb-1 ms-1 mt-1">
+                                </td>
+                                <!-- <td>
+                                    <input type="number" name="qty_<%= i %>" class="w-24 qty mb-1 ms-1 mt-1">
+                                </td> -->
+                                <td>
+                                    <input type="number" name="sale_<%= i %>" class="w-24 sale mb-1 ms-1 mt-1">
+                                </td>
+                                <td>
+                                    <input type="number" name="cost_<%= i %>" class="w-24 cost mb-1 ms-1 mt-1">
+                                </td>
+                            </tr>
+                            <% } %>
+
+                    </tbody>
+            </table>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

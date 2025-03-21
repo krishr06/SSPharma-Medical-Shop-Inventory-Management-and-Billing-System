@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="./output.css" rel="stylesheet">
+    <title>Stock</title>
+</head>
+
+<body class="m-0 p-0 bg-emerald-100 font-sans">
+    <nav class="w-full flex justify-between font-semibold shadow-lg bg-emerald-200 text-teal-700">
+        <img src="./img/Tlogo.png" alt="SSLogo" class="m-3" style="width: 6%;">
+        <div class="self-center mr-3">
+            <a href="/" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Home</a>
+            <a href="/sale" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Sale</a>
+            <a href="/stock" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Stock</a>
+            <!-- <a href="/order" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Order</a> -->
+            <a href="/payments" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Payments</a>
+            <a href="/remaining" class="m-2 text-lg hover:text-teal-900 transition-colors duration-100">Remaining</a>
+        </div>
+    </nav>
+
+    <div class="flex">
+        <div class="w-7/12 p-8 text-center">
+            <h2 class="text-2xl font-semibold mb-4">STOCK</h2>
+            <table class="w-full border border-collapse">
+                <thead>
+                    <tr>
+                        <th class="border p-2">Sr.No.</th>
+                        <th class="border p-2">Product ID</th>
+                        <th class="border p-2">Product</th>
+                        <th class="border p-2">Batch Number</th>
+                        <th class="border p-2">Expiry Date</th>
+                        <th class="border p-2">MRP</th>
+                        <th class="border p-2">Packaging</th>
+                        <th class="border p-2">Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% stockData.forEach((item) => { %>
+                        <tr>
+                            <td class="border p-2"><%= stockData.indexOf(item) + 1 %></td>
+                            <td class="border p-2"><%= item.pid %></td>
+                            <td class="border p-2"><%= item.product %></td>
+                            <td class="border p-2"><%= item.batch_no %></td>
+                            <td class="border p-2"><%= new Date(item.expiry_date).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }); %></td>
+                            <td class="border p-2"><%= item.mrp %></td>
+                            <td class="border p-2"><%= item.pkg %></td>
+                            <td class="border p-2"><%= item.qty %></td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="w-5/12 p-8">
+            <div class="flex justify-evenly">
+                <div class="mb-4">
+                    <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="add">Add Stock</button>
+                </div>
+                <div class="mb-4">
+                    <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="update">Update Stock</button>
+                </div>
+                <div>
+                    <button class="bg-teal-500 text-white px-4 py-2 rounded hover:bg-teal-600" onClick="showForm(this)" id="delete">Delete Stock</button>
+                </div>
+            </div>
+                    
+            <div class="h-3/4 w-full m-2" id="dbForms">
+                <div id="addForm" style="display: none;" class="border border-double border-teal-950 p-4">
+                    <form action="/stock/addStock" method="post">
+                        <h1 class="font-bold text-2xl text-center m-4">Add Stock</h1>
+                        <label for="pid" class="font-semibold">Product ID</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="pid" name="pid" required><br>
+                        <label for="product" class="font-semibold">Product</label><br>
+                        <input type="text" class="m-2 w-full p-2 rounded-sm" id="product" name="product" required><br>
+                        <label for="bno" class="font-semibold">Batch No</label><br>
+                        <input type="text" class="m-2 w-full p-2 rounded-sm" id="bno" name="bno"><br>
+                        <label for="exp" class="font-semibold">Expiry Date</label><br>
+                        <input type="date" class="m-2 w-full p-2 rounded-sm" id="exp" name="exp"><br>
+                        <label for="mrp" class="font-semibold">MRP</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="mrp" name="mrp" required><br>
+                        <label for="pkg" class="font-semibold">Packaging</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="pkg" name="pkg" required><br>
+                        <label for="qty" class="font-semibold">Quantity</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="qty" name="qty" required><br>
+                        <div class="flex h-full w-full justify-center gap-10 mt-6">
+                            <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Add Stock">
+                            <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+                        </div>
+                    </form>
+                    
+                </div>
+
+                <div id="updateForm" style="display: none;" class="border border-double border-teal-950 p-4">
+                    <form action="/stock/updateStock"  method="post">
+                        <h1 class="font-bold text-2xl text-center m-4">Update Stock</h1>
+                        <label for="pid" class="font-semibold">Product ID</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="pid" name="pid" required><br>
+                        <label for="newpid" class="font-semibold">New Product ID</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="newpid" name="newpid" required><br>
+                        <label for="product" class="font-semibold">Product</label><br>
+                        <input type="text" class="m-2 w-full p-2 rounded-sm" id="product" name="product" required><br>
+                        <label for="bno" class="font-semibold">Batch No</label><br>
+                        <input type="text" class="m-2 w-full p-2 rounded-sm" id="bno" name="bno"><br>
+                        <label for="exp" class="font-semibold">Expiry Date</label><br>
+                        <input type="date" class="m-2 w-full p-2 rounded-sm" id="exp" name="exp"><br>
+                        <label for="mrp" class="font-semibold">MRP</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="mrp" name="mrp" required><br>
+                        <label for="pkg" class="font-semibold">Packaging</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="pkg" name="pkg" required><br>
+                        <label for="qty" class="font-semibold">Quantity</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="qty" name="qty" required><br>
+
+                        <div class="flex h-full w-full justify-center gap-10 mt-6">
+                            <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Update Stock">
+                            <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="deleteForm" style="display: none;" class="border border-double border-teal-950 p-4">
+                    <form action="/stock/deleteStock"  method="post">
+                        <h1 class="font-bold text-2xl text-center m-4">Delete Stock</h1>
+                        <label for="pid" class="font-semibold">Product Id</label><br>
+                        <input type="number" class="m-2 w-full p-2 rounded-sm" id="pid" name="pid" required><br>
+                    
+                        <div class="flex h-full w-full justify-center gap-10 mt-6">
+                            <input type="submit" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600" value="Delete Stock">
+                            <button id="closeBtn" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600" onclick="closeForm()">Close</button>
+                        </div>
+                    </form>
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+    <script>
+        var formContainer = document.getElementById('dbForms');
+        var addForm = document.getElementById('addForm');
+        var updateForm = document.getElementById('updateForm');
+        var deleteForm = document.getElementById('deleteForm');
+        function showForm(btn){
+            switch(btn.id){
+                case "add":
+                    updateForm.style.display = "none";
+                    deleteForm.style.display = "none";
+                    addForm.style.display = "block";
+                    break;
+                    
+                case "update":
+                    addForm.style.display = "none";
+                    deleteForm.style.display = "none";
+                    updateForm.style.display = "block";
+                    break;
+
+                case "delete":
+                    updateForm.style.display = "none";
+                    addForm.style.display = "none";
+                    deleteForm.style.display = "block";
+                    break;
+            }
+        }
+
+        function closeForm(){
+            updateForm.style.display = "none";
+            addForm.style.display = "none";
+            deleteForm.style.display = "none";
+        }
+    </script>
+</body>
+</html>
